@@ -1,0 +1,13 @@
+{
+  "id": "/NEXFLIX/",
+  "name": "NEXFLIX",
+  "short_name": "NEXFLIX",
+  "description": "NEXFLIX: seu lugar para descobrir e assistir filmes e entretenimento.",
+  "lang": "pt-BR",
+  "start_url": "/NEXFLIX/",
+  "scope": "/NEXFLIX/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080808",
+  "theme_color": "#080808"
+}
