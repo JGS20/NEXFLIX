@@ -1,0 +1,694 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090909">
+<title>NEXFLIX</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 16px;background:#101010}
+.logo{color:#e50914;font-size:28px;font-weight:900}
+button{border:0;border-radius:6px;padding:12px 16px;font-weight:bold;cursor:pointer}
+input,textarea,select{width:100%;padding:13px;border-radius:7px;border:1px solid #444;background:#202020;color:white;font-size:15px;margin:6px 0 14px}
+textarea{min-height:85px}
+.admin-btn,.watch,.save-btn{background:#e50914;color:white}
+.search{padding:14px 16px}
+.hero{margin:5px 14px 22px;padding:25px 18px;min-height:230px;border-radius:12px;background:linear-gradient(130deg,#570000,#171717);display:flex;flex-direction:column;justify-content:end}
+.hero small{color:#ff5555;font-weight:bold}
+.hero h1{font-size:30px;margin:10px 0}
+.hero p{color:#ddd}
+section{padding:0 14px 18px}
+.categories{display:flex;gap:8px;overflow-x:auto}
+.categories button{background:#292929;color:white;white-space:nowrap}
+.categories button.active{background:#e50914}
+.movies{display:flex;gap:12px;overflow-x:auto;padding:8px 0 15px}
+.movie{min-width:130px;width:130px;cursor:pointer}
+.poster{height:190px;border-radius:9px;display:flex;align-items:end;padding:12px;font-size:17px;font-weight:bold;background-size:cover;background-position:center;box-shadow:inset 0 -90px 50px -30px #000}
+.movie p{font-size:14px}
+.favorite-section{display:none}
+.favorite-section.show{display:block}
+.empty-favorites{color:#999;font-size:14px;padding:10px 0}
+#detail,#playerPage,#adminPage{display:none;position:fixed;inset:0;background:#090909;z-index:10;overflow-y:auto}
+.detail-banner{min-height:260px;padding:25px;display:flex;flex-direction:column;justify-content:end;background:linear-gradient(0deg,#090909,#300000);background-size:cover;background-position:center}
+.detail-banner h1{font-size:32px;margin-bottom:5px}
+.detail-content{padding:20px}
+.info{color:#aaa;font-size:13px;margin-bottom:15px}
+.description{color:#ddd;line-height:1.6}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.back,.close-btn{background:#333;color:white}
+.favorite-btn{background:#292929;color:white;border:1px solid #555}
+.favorite-btn.saved{background:#e50914;border-color:#e50914}
+#playerPage{z-index:20;background:#050505;padding:15px}
+.player-top,.admin-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+video{width:100%;max-height:65vh;background:black;border-radius:8px}
+.player-message{color:#aaa;font-size:13px;line-height:1.5}
+#adminPage{z-index:30;padding:18px;background:#111}
+.admin-card{background:#1d1d1d;padding:16px;border-radius:10px;margin-bottom:18px}
+.admin-card h3{margin-top:0}
+.admin-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #444}
+.delete-btn{background:#8b0000;color:white}
+.status{font-size:13px;color:#aaa;line-height:1.5}
+footer{text-align:center;color:#777;padding:25px;font-size:12px}
+@media(min-width:700px){
+ .movie{min-width:180px;width:180px}
+ .poster{height:260px}
+ .hero{min-height:330px}
+ .hero h1{font-size:46px}
+ .detail-banner{min-height:380px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="logo">NEXFLIX</div>
+ <button class="admin-btn" onclick="openAdmin()">⚙ ADMIN</button>
+</header>
+
+<div class="search">
+ <input id="search" placeholder="Pesquisar filmes..." oninput="filterMovies()">
+</div>
+
+<div class="hero">
+ <small>DESTAQUE NEXFLIX</small>
+ <h1>SEU PRÓXIMO FILME</h1>
+ <p>Grandes histórias começam aqui.</p>
+ <button class="watch" onclick="openMovie('filme1')">▶ Conhecer filme</button>
+</div>
+
+<section>
+ <h2>Categorias</h2>
+ <div class="categories">
+  <button class="active" onclick="category('Todos',this)">Todos</button>
+  <button onclick="category('Ação',this)">Ação</button>
+  <button onclick="category('Terror',this)">Terror</button>
+  <button onclick="category('Comédia',this)">Comédia</button>
+  <button onclick="category('Drama',this)">Drama</button>
+  <button onclick="category('Série',this)">Série</button>
+ </div>
+</section>
+
+<section>
+ <h2>🔥 Em destaque</h2>
+ <p id="catalogStatus" class="status">Carregando catálogo...</p>
+ <div class="movies" id="movies"></div>
+</section>
+
+<section class="favorite-section" id="favoriteSection">
+ <h2>❤️ Minha lista</h2>
+ <div class="movies" id="favoriteMovies"></div>
+ <p class="empty-favorites" id="emptyFavorites">Seus favoritos aparecerão aqui.</p>
+</section>
+
+<footer>NEXFLIX © 2026</footer>
+
+<div id="detail">
+ <div class="detail-banner" id="detailBanner">
+  <small style="color:#ff5555">NEXFLIX</small>
+  <h1 id="movieTitle">Filme</h1>
+  <div class="info" id="movieInfo"></div>
+ </div>
+ <div class="detail-content">
+  <h3>Sobre este conteúdo</h3>
+  <p class="description" id="movieDescription"></p>
+  <div class="actions">
+   <button class="watch" onclick="playMovie()">▶ Assistir</button>
+   <button class="favorite-btn" id="favoriteButton" onclick="toggleFavorite()">♡ Favoritar</button>
+   <button class="back" onclick="closeMovie()">← Voltar</button>
+  </div>
+ </div>
+</div>
+
+<div id="playerPage">
+ <div class="player-top">
+  <h3>NEXFLIX</h3>
+  <button class="back" onclick="closePlayer()">✕ Fechar</button>
+ </div>
+ <h2 id="playerTitle">Reprodução</h2>
+ <video id="videoPlayer" controls playsinline>
+  <source id="videoSource" src="" type="video/mp4">
+  Seu navegador não suporta vídeo.
+ </video>
+ <p class="player-message">Utilize somente vídeos próprios, licenciados ou autorizados.</p>
+</div>
+
+<div id="adminPage">
+ <div class="admin-top">
+  <h2>⚙ Painel ADMIN</h2>
+  <button class="close-btn" onclick="closeAdmin()">✕ Fechar</button>
+ </div>
+
+ <div class="admin-card" id="adminLogin">
+  <h3>🔐 Login do administrador</h3>
+  <label>E-mail</label>
+  <input id="adminEmail" type="email" placeholder="Seu e-mail cadastrado no Firebase">
+  <label>Senha</label>
+  <input id="adminPassword" type="password" placeholder="Sua senha">
+  <button class="save-btn" onclick="firebaseLogin()">Entrar no ADMIN</button>
+  <p id="loginMessage" class="status"></p>
+ </div>
+
+ <div id="adminControls" style="display:none">
+  <div class="admin-card">
+   <p id="adminStatus" class="status">Administrador conectado!</p>
+   <button class="back" onclick="firebaseLogout()">Sair da conta</button>
+  </div>
+
+  <div class="admin-card">
+   <h3>➕ Cadastrar filme ou série</h3>
+   <label>Nome do conteúdo</label>
+   <input id="newTitle" placeholder="Ex: Minha Aventura">
+   <label>Categoria</label>
+   <select id="newCategory">
+    <option value="Ação">Ação</option>
+    <option value="Terror">Terror</option>
+    <option value="Comédia">Comédia</option>
+    <option value="Drama">Drama</option>
+    <option value="Série">Série</option>
+   </select>
+   <label>Descrição</label>
+   <textarea id="newDescription" placeholder="Escreva sobre o conteúdo..."></textarea>
+   <label>Link da imagem da capa</label>
+   <input id="newImage" type="url" placeholder="https://site.com/capa.jpg">
+   <label>Link do vídeo MP4</label>
+   <input id="newVideo" type="url" placeholder="https://site.com/video.mp4">
+   <button class="save-btn" onclick="addMovie()">💾 Cadastrar conteúdo</button>
+  </div>
+
+  <div class="admin-card">
+   <h3>📚 Conteúdos cadastrados na nuvem</h3>
+   <div id="adminList"></div>
+  </div>
+ </div>
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+
+import {
+ getAuth,
+ signInWithEmailAndPassword,
+ signOut,
+ onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+import {
+ getFirestore,
+ collection,
+ getDocs,
+ addDoc,
+ deleteDoc,
+ doc
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+ apiKey: "AIzaSyDb5ArbG4D0s6LPcrIdaxXQjmzqLDwgGXw",
+ authDomain: "nexflix-6f17e.firebaseapp.com",
+ projectId: "nexflix-6f17e",
+ storageBucket: "nexflix-6f17e.firebasestorage.app",
+ messagingSenderId: "259561459826",
+ appId: "1:259561459826:web:88202d919a8728c7aff2eb",
+ measurementId: "G-KM1YBZ1NG1"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const ADMIN_UID = "TFYpDtMTIATWFmvGdEvU02CHTBR2";
+
+const defaultFilms = [
+ {
+  id:"filme1",
+  title:"Missão Final",
+  category:"Ação",
+  info:"Ação • Filme de demonstração",
+  description:"Uma missão inesperada muda tudo. Uma aventura fictícia cheia de desafios e suspense.",
+  image:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=400",
+  video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+ },
+ {
+  id:"filme2",
+  title:"A Sombra",
+  category:"Terror",
+  info:"Terror • Filme de demonstração",
+  description:"Mistérios começam a aparecer quando a noite chega.",
+  image:"https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=400",
+  video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+ },
+ {
+  id:"filme3",
+  title:"Destino",
+  category:"Drama",
+  info:"Drama • Filme de demonstração",
+  description:"Uma história sobre escolhas, sonhos e novos caminhos.",
+  image:"https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400",
+  video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+ },
+ {
+  id:"filme4",
+  title:"Boas Risadas",
+  category:"Comédia",
+  info:"Comédia • Filme de demonstração",
+  description:"Uma sequência de situações divertidas.",
+  image:"https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400",
+  video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+ },
+ {
+  id:"filme5",
+  title:"O Guerreiro",
+  category:"Ação",
+  info:"Ação • Filme de demonstração",
+  description:"Um guerreiro enfrenta desafios em uma aventura.",
+  image:"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400",
+  video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+ }
+];
+
+let films = [...defaultFilms];
+let favorites = loadFavorites();
+let currentFilm = null;
+let currentCategory = "Todos";
+let currentUserIsAdmin = false;
+let cloudFilms = [];
+
+function loadFavorites(){
+ try {
+  const data = JSON.parse(localStorage.getItem("nexflixFavorites"));
+  return Array.isArray(data) ? data : [];
+ } catch(e) {
+  return [];
+ }
+}
+
+function saveFavorites(){
+ localStorage.setItem("nexflixFavorites",JSON.stringify(favorites));
+}
+
+function safeText(value){
+ return String(value || "");
+}
+
+function validUrl(value){
+ try {
+  const url = new URL(value);
+  return url.protocol === "https:" || url.protocol === "http:";
+ } catch(e) {
+  return false;
+ }
+
+}
+
+function renderMovies(){
+ const container = document.getElementById("movies");
+ container.innerHTML = "";
+
+ films.forEach(film => {
+  const card = document.createElement("div");
+  card.className = "movie";
+  card.dataset.category = film.category;
+
+  const poster = document.createElement("div");
+  poster.className = "poster";
+
+  if(validUrl(film.image)){
+   poster.style.backgroundImage =
+    "linear-gradient(0deg,#000d,transparent),url(" +
+    JSON.stringify(film.image) + ")";
+  }
+
+  poster.textContent = film.title;
+
+  const name = document.createElement("p");
+  name.textContent = film.title;
+
+  card.append(poster,name);
+  card.onclick = () => openMovie(film.id);
+
+  container.appendChild(card);
+ });
+
+ applyFilters();
+ renderFavorites();
+}
+
+function applyFilters(){
+ const query = document.getElementById("search").value.toLowerCase();
+
+ document.querySelectorAll("#movies .movie").forEach(card => {
+  const matchesText = card.innerText.toLowerCase().includes(query);
+  const matchesCategory =
+   currentCategory === "Todos" ||
+   card.dataset.category === currentCategory;
+
+  card.style.display =
+   matchesText && matchesCategory ? "block" : "none";
+ });
+}
+
+window.filterMovies = applyFilters;
+
+window.category = function(cat,button){
+ currentCategory = cat;
+
+ document.querySelectorAll(".categories button").forEach(b => {
+  b.classList.remove("active");
+ });
+
+ button.classList.add("active");
+ applyFilters();
+};
+
+window.openMovie = function(id){
+ currentFilm = films.find(f => f.id === id);
+ if(!currentFilm) return;
+
+ document.getElementById("movieTitle").textContent = currentFilm.title;
+ document.getElementById("movieInfo").textContent =
+  currentFilm.info || currentFilm.category;
+ document.getElementById("movieDescription").textContent =
+  currentFilm.description;
+
+ const banner = document.getElementById("detailBanner");
+
+ banner.style.backgroundImage = validUrl(currentFilm.image)
+  ? "linear-gradient(0deg,#090909,#30000088),url(" +
+    JSON.stringify(currentFilm.image) + ")"
+  : "linear-gradient(0deg,#090909,#30000088)";
+
+ document.getElementById("detail").style.display = "block";
+ updateFavoriteButton();
+};
+
+window.closeMovie = function(){
+ document.getElementById("detail").style.display = "none";
+};
+
+window.playMovie = function(){
+ if(!currentFilm) return;
+
+ document.getElementById("playerTitle").textContent = currentFilm.title;
+
+ const player = document.getElementById("videoPlayer");
+ document.getElementById("videoSource").src = currentFilm.video || "";
+
+ player.load();
+
+ document.getElementById("detail").style.display = "none";
+ document.getElementById("playerPage").style.display = "block";
+};
+
+window.closePlayer = function(){
+ const player = document.getElementById("videoPlayer");
+ player.pause();
+ player.removeAttribute("src");
+ document.getElementById("videoSource").src = "";
+ player.load();
+ document.getElementById("playerPage").style.display = "none";
+};
+
+window.toggleFavorite = function(){
+ if(!currentFilm) return;
+
+ if(favorites.includes(currentFilm.id)){
+  favorites = favorites.filter(id => id !== currentFilm.id);
+ } else {
+  favorites.push(currentFilm.id);
+ }
+
+ saveFavorites();
+ updateFavoriteButton();
+ renderFavorites();
+};
+
+function updateFavoriteButton(){
+ if(!currentFilm) return;
+
+ const saved = favorites.includes(currentFilm.id);
+ const btn = document.getElementById("favoriteButton");
+
+ btn.textContent = saved ? "♥ Favoritado" : "♡ Favoritar";
+ btn.classList.toggle("saved",saved);
+}
+
+function renderFavorites(){
+ const section = document.getElementById("favoriteSection");
+ const container = document.getElementById("favoriteMovies");
+ const empty = document.getElementById("emptyFavorites");
+
+ container.innerHTML = "";
+
+ favorites.forEach(id => {
+  const film = films.find(f => f.id === id);
+  if(!film) return;
+
+  const card = document.createElement("div");
+  card.className = "movie";
+
+  const poster = document.createElement("div");
+  poster.className = "poster";
+
+  if(validUrl(film.image)){
+   poster.style.backgroundImage =
+    "linear-gradient(0deg,#000d,transparent),url(" +
+    JSON.stringify(film.image) + ")";
+  }
+
+  poster.textContent = film.title;
+
+  const name = document.createElement("p");
+  name.textContent = film.title;
+
+  card.append(poster,name);
+  card.onclick = () => window.openMovie(film.id);
+
+  container.appendChild(card);
+ });
+
+ section.classList.toggle("show",container.children.length > 0);
+ empty.style.display = container.children.length ? "none" : "block";
+}
+
+// FIREBASE: CATÁLOGO
+
+async function loadCloudFilms(){
+ try {
+  const snapshot = await getDocs(collection(db,"filmes"));
+
+  cloudFilms = snapshot.docs.map(item => ({
+   ...item.data(),
+   id:item.id,
+   cloud:true
+  }));
+
+  films = [...defaultFilms,...cloudFilms];
+
+  document.getElementById("catalogStatus").textContent =
+   "Catálogo atualizado!";
+
+  renderMovies();
+
+  if(currentUserIsAdmin) renderAdminList();
+
+ } catch(error) {
+  console.error(error);
+
+  document.getElementById("catalogStatus").textContent =
+   "Não foi possível carregar os filmes online. Verifique a conexão e as regras do Firestore.";
+ }
+}
+
+// FIREBASE: LOGIN
+
+window.firebaseLogin = async function(){
+ const email = document.getElementById("adminEmail").value.trim();
+ const password = document.getElementById("adminPassword").value;
+ const message = document.getElementById("loginMessage");
+
+ if(!email || !password){
+  message.textContent = "Digite seu e-mail e sua senha.";
+  return;
+ }
+
+ message.textContent = "Verificando acesso...";
+
+ try {
+  const result = await signInWithEmailAndPassword(auth,email,password);
+
+  if(result.user.uid !== ADMIN_UID){
+   await signOut(auth);
+   message.textContent = "Esta conta não tem autorização de administrador.";
+   return;
+  }
+
+  message.textContent = "Login realizado!";
+
+ } catch(error) {
+  console.error(error);
+  message.textContent = "Falha no login. Confira o e-mail e a senha.";
+ }
+};
+
+window.firebaseLogout = async function(){
+ try {
+  await signOut(auth);
+ } catch(error) {
+  alert("Não foi possível sair: " + error.message);
+ }
+};
+
+onAuthStateChanged(auth,async user => {
+ currentUserIsAdmin = !!(user && user.uid === ADMIN_UID);
+
+ document.getElementById("adminLogin").style.display =
+  currentUserIsAdmin ? "none" : "block";
+
+ document.getElementById("adminControls").style.display =
+  currentUserIsAdmin ? "block" : "none";
+
+ document.getElementById("adminStatus").textContent =
+  currentUserIsAdmin ? "Administrador conectado!" : "";
+
+ if(currentUserIsAdmin){
+  await loadCloudFilms();
+  renderAdminList();
+ }
+});
+
+// FIREBASE: CADASTRAR
+
+window.addMovie = async function(){
+ if(!currentUserIsAdmin || !auth.currentUser ||
+    auth.currentUser.uid !== ADMIN_UID){
+  alert("Você precisa entrar como administrador.");
+  return;
+ }
+
+ const title = document.getElementById("newTitle").value.trim();
+ const category = document.getElementById("newCategory").value;
+ const description = document.getElementById("newDescription").value.trim();
+ const image = document.getElementById("newImage").value.trim();
+ const video = document.getElementById("newVideo").value.trim();
+
+ if(!title || !description || !image || !video){
+  alert("Preencha todos os campos.");
+  return;
+ }
+
+ if(!validUrl(image) || !validUrl(video)){
+  alert("Os links precisam começar com http:// ou https://");
+  return;
+ }
+
+ try {
+  const newFilm = {
+   title,
+   category,
+   info:category + " • Conteúdo cadastrado",
+   description,
+   image,
+   video,
+   createdAt:Date.now()
+  };
+
+  const result = await addDoc(collection(db,"filmes"),newFilm);
+
+  cloudFilms.push({...newFilm,id:result.id,cloud:true});
+  films = [...defaultFilms,...cloudFilms];
+
+  renderMovies();
+  renderAdminList();
+
+  document.getElementById("newTitle").value = "";
+  document.getElementById("newDescription").value = "";
+  document.getElementById("newImage").value = "";
+  document.getElementById("newVideo").value = "";
+
+  alert("Filme cadastrado na nuvem com sucesso!");
+
+ } catch(error) {
+  console.error(error);
+  alert("Erro ao cadastrar: " + error.message);
+ }
+};
+
+// FIREBASE: EXCLUIR
+
+window.deleteMovie = async function(id){
+ if(!currentUserIsAdmin || !auth.currentUser ||
+    auth.currentUser.uid !== ADMIN_UID){
+  alert("Acesso não autorizado.");
+  return;
+ }
+
+ const film = cloudFilms.find(f => f.id === id);
+ if(!film) return;
+
+ if(!confirm("Deseja excluir " + film.title + "?")) return;
+
+ try {
+  await deleteDoc(doc(db,"filmes",id));
+
+  cloudFilms = cloudFilms.filter(f => f.id !== id);
+  films = [...defaultFilms,...cloudFilms];
+  favorites = favorites.filter(fav => fav !== id);
+
+  saveFavorites();
+  renderMovies();
+  renderAdminList();
+
+  alert("Conteúdo excluído da nuvem.");
+
+ } catch(error) {
+  console.error(error);
+  alert("Erro ao excluir: " + error.message);
+ }
+};
+
+function renderAdminList(){
+ const container = document.getElementById("adminList");
+ container.innerHTML = "";
+
+ if(cloudFilms.length === 0){
+  container.textContent = "Nenhum conteúdo cadastrado na nuvem.";
+  return;
+ }
+
+ cloudFilms.forEach(film => {
+  const item = document.createElement("div");
+  item.className = "admin-item";
+
+  const name = document.createElement("span");
+  name.textContent = film.title + " (" + film.category + ")";
+
+  const del = document.createElement("button");
+  del.className = "delete-btn";
+  del.textContent = "Excluir";
+  del.onclick = () => window.deleteMovie(film.id);
+
+  item.append(name,del);
+  container.appendChild(item);
+ });
+}
+
+window.openAdmin = function(){
+ document.getElementById("adminPage").style.display = "block";
+};
+
+window.closeAdmin = function(){
+ document.getElementById("adminPage").style.display = "none";
+};
+
+renderMovies();
+loadCloudFilms();
+
+</script>
+</body>
+</html>
