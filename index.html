@@ -2,65 +2,141 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<link rel="manifest" href="manifest.json">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#090909">
-<meta name="description" content="NEXFLIX: seu lugar para descobrir e assistir filmes e entretenimento.">
+<meta name="theme-color" content="#080808">
+  <meta name="description" content="NEXFLIX: seu lugar para descobrir e assistir filmes e entretenimento.">
 <link rel="manifest" href="manifest.json">
 <title>NEXFLIX</title>
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif}
-header{display:flex;justify-content:space-between;align-items:center;padding:18px 16px;background:#101010}
-.logo{color:#e50914;font-size:28px;font-weight:900}
-button{border:0;border-radius:6px;padding:12px 16px;font-weight:bold;cursor:pointer}
-input,textarea,select{width:100%;padding:13px;border-radius:7px;border:1px solid #444;background:#202020;color:white;font-size:15px;margin:6px 0 14px}
+:root{--red:#e50914;--bg:#080808;--card:#171717;--muted:#aaa}
+body{margin:0;background:var(--bg);color:white;font-family:Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{border:0;border-radius:7px;padding:12px 16px;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.97)}
+header{
+ position:sticky;top:0;z-index:5;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:15px 5%;background:#090909ed;
+ border-bottom:1px solid #252525;backdrop-filter:blur(12px)
+}
+.logo{color:var(--red);font-size:29px;font-weight:1000;letter-spacing:-1.5px}
+.header-right{display:flex;align-items:center;gap:10px}
+.admin-btn{background:#252525;color:white}
+.search{padding:15px 5%;max-width:750px}
+input,textarea,select{
+ width:100%;padding:13px;border-radius:7px;
+ border:1px solid #444;background:#202020;color:white;
+ margin:6px 0 14px;font-size:15px
+}
+input:focus,textarea:focus,select:focus{outline:1px solid var(--red)}
 textarea{min-height:85px}
-.admin-btn,.watch,.save-btn{background:#e50914;color:white}
-.search{padding:14px 16px}
-.hero{margin:5px 14px 22px;padding:25px 18px;min-height:230px;border-radius:12px;background:linear-gradient(130deg,#570000,#171717);display:flex;flex-direction:column;justify-content:end}
-.hero small{color:#ff5555;font-weight:bold}
-.hero h1{font-size:30px;margin:10px 0}
-.hero p{color:#ddd}
-section{padding:0 14px 18px}
-.categories{display:flex;gap:8px;overflow-x:auto}
-.categories button{background:#292929;color:white;white-space:nowrap}
-.categories button.active{background:#e50914}
-.movies{display:flex;gap:12px;overflow-x:auto;padding:8px 0 15px}
-.movie{min-width:130px;width:130px;cursor:pointer}
-.poster{height:190px;border-radius:9px;display:flex;align-items:end;padding:12px;font-size:17px;font-weight:bold;background-size:cover;background-position:center;box-shadow:inset 0 -90px 50px -30px #000}
-.movie p{font-size:14px}
+.hero{
+ position:relative;min-height:390px;margin:5px 3% 28px;
+ padding:30px 5%;border-radius:13px;overflow:hidden;
+ display:flex;flex-direction:column;justify-content:end;
+ background:#242424 center/cover no-repeat;
+}
+.hero:before{
+ content:"";position:absolute;inset:0;
+ background:linear-gradient(0deg,#080808 0%,#08080888 45%,#0002 100%),
+ linear-gradient(90deg,#080808bb,transparent)
+}
+.hero-content{position:relative;z-index:1;max-width:600px}
+.hero small{color:#ff5555;font-weight:bold;letter-spacing:2px}
+.hero h1{font-size:clamp(30px,6vw,55px);margin:12px 0}
+.hero p{color:#ddd;line-height:1.5;max-width:500px}
+.watch,.save-btn{background:var(--red);color:white}
+.secondary{background:#333;color:white}
+main{padding-bottom:25px}
+section{padding:0 5% 22px}
+.section-title{font-size:21px;margin:12px 0}
+.categories{display:flex;gap:9px;overflow-x:auto;padding:4px 0 12px}
+.categories button{background:#252525;color:white;white-space:nowrap}
+.categories button.active{background:var(--red)}
+.movies{
+ display:flex;gap:13px;overflow-x:auto;
+ padding:8px 2px 17px;scrollbar-width:thin;
+ scrollbar-color:#555 transparent
+}
+.movie{flex:0 0 145px;width:145px;cursor:pointer;transition:transform .2s}
+.movie:hover{transform:scale(1.035)}
+.poster{
+ position:relative;height:215px;border-radius:9px;overflow:hidden;
+ background:#222;box-shadow:0 5px 15px #0008
+}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.poster:after{
+ content:"";position:absolute;inset:35% 0 0;
+ background:linear-gradient(transparent,#000c)
+}
+.poster-name{
+ position:absolute;z-index:1;bottom:10px;left:9px;right:9px;
+ font-size:14px;font-weight:bold;text-shadow:0 2px 5px black
+}
+.movie p{font-size:14px;color:#ddd;margin:8px 2px}
+.empty{color:var(--muted);font-size:14px;padding:10px 0}
+.status{font-size:13px;color:var(--muted);line-height:1.5}
 .favorite-section{display:none}
 .favorite-section.show{display:block}
-.empty-favorites{color:#999;font-size:14px;padding:10px 0}
-#detail,#playerPage,#adminPage{display:none;position:fixed;inset:0;background:#090909;z-index:10;overflow-y:auto}
-.detail-banner{min-height:260px;padding:25px;display:flex;flex-direction:column;justify-content:end;background:linear-gradient(0deg,#090909,#300000);background-size:cover;background-position:center}
-.detail-banner h1{font-size:32px;margin-bottom:5px}
-.detail-content{padding:20px}
+footer{text-align:center;color:#777;padding:30px 15px;font-size:12px;border-top:1px solid #222}
+
+/* TELA DE DETALHES */
+#detail,#playerPage,#adminPage{
+ display:none;position:fixed;inset:0;background:var(--bg);
+ z-index:10;overflow-y:auto
+}
+.detail-banner{
+ min-height:330px;padding:28px 6%;
+ display:flex;flex-direction:column;justify-content:end;
+ background:#222 center/cover no-repeat;position:relative
+}
+.detail-banner:before{
+ content:"";position:absolute;inset:0;
+ background:linear-gradient(0deg,#080808,transparent 95%)
+}
+.detail-banner>*{position:relative}
+.detail-banner small{color:#ff5555;font-weight:bold}
+.detail-banner h1{font-size:clamp(30px,6vw,48px);margin:12px 0 5px}
+.detail-content{padding:22px 6%;max-width:850px}
 .info{color:#aaa;font-size:13px;margin-bottom:15px}
-.description{color:#ddd;line-height:1.6}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
-.back,.close-btn{background:#333;color:white}
+.description{color:#ddd;line-height:1.7}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
 .favorite-btn{background:#292929;color:white;border:1px solid #555}
-.favorite-btn.saved{background:#e50914;border-color:#e50914}
-#playerPage{z-index:20;background:#050505;padding:15px}
-.player-top,.admin-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-video{width:100%;max-height:65vh;background:black;border-radius:8px}
+.favorite-btn.saved{background:#8b0000}
+.back,.close-btn{background:#333;color:white}
+
+/* PLAYER */
+#playerPage{z-index:20;background:#050505;padding:18px}
+.player-top,.admin-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+#videoPlayer{width:100%;max-height:72vh;background:black;border-radius:9px}
 .player-message{color:#aaa;font-size:13px;line-height:1.5}
-#adminPage{z-index:30;padding:18px;background:#111}
-.admin-card{background:#1d1d1d;padding:16px;border-radius:10px;margin-bottom:18px}
+
+/* ADMIN */
+#adminPage{z-index:30;padding:18px;background:#101010}
+.admin-card{background:#1d1d1d;padding:17px;border-radius:10px;margin-bottom:18px}
 .admin-card h3{margin-top:0}
-.admin-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #444}
+.admin-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #444}
+.admin-item span{overflow-wrap:anywhere}
 .delete-btn{background:#8b0000;color:white}
-.status{font-size:13px;color:#aaa;line-height:1.5}
-footer{text-align:center;color:#777;padding:25px;font-size:12px}
+.catalog-empty{color:#999;padding:15px 0}
+.loading{color:#aaa;padding:10px 5%}
+
 @media(min-width:700px){
- .movie{min-width:180px;width:180px}
- .poster{height:260px}
- .hero{min-height:330px}
- .hero h1{font-size:46px}
- .detail-banner{min-height:380px}
+ .movie{flex-basis:190px;width:190px}
+ .poster{height:280px}
+ .hero{min-height:490px}
+ .detail-banner{min-height:440px}
+}
+@media(max-width:420px){
+ header{padding:13px 4%}
+ .logo{font-size:25px}
+ .hero{min-height:310px}
+ .movie{flex-basis:130px;width:130px}
+ .poster{height:190px}
 }
 </style>
 </head>
@@ -69,49 +145,65 @@ footer{text-align:center;color:#777;padding:25px;font-size:12px}
 
 <header>
  <div class="logo">NEXFLIX</div>
- <button class="admin-btn" onclick="openAdmin()">⚙ ADMIN</button>
+ <div class="header-right">
+  <button class="admin-btn" onclick="openAdmin()">⚙ ADMIN</button>
+ </div>
 </header>
 
+<main id="home">
+
 <div class="search">
- <input id="search" placeholder="Pesquisar filmes..." oninput="filterMovies()">
+ <input id="search" placeholder="🔎 Pesquisar filmes e séries..." oninput="filterMovies()">
 </div>
 
-<div class="hero">
- <small>DESTAQUE NEXFLIX</small>
- <h1>SEU PRÓXIMO FILME</h1>
- <p>Grandes histórias começam aqui.</p>
- <button class="watch" onclick="openMovie('filme1')">▶ Conhecer filme</button>
+<div class="hero" id="hero">
+ <div class="hero-content">
+  <small>DESTAQUE NEXFLIX</small>
+  <h1 id="heroTitle">SEU PRÓXIMO FILME</h1>
+  <p id="heroDescription">Grandes histórias começam aqui.</p>
+  <button class="watch" onclick="openFeatured()">▶ Assistir agora</button>
+ </div>
 </div>
 
 <section>
- <h2>Categorias</h2>
+ <h2 class="section-title">Explore por categoria</h2>
  <div class="categories">
   <button class="active" onclick="category('Todos',this)">Todos</button>
   <button onclick="category('Ação',this)">Ação</button>
   <button onclick="category('Terror',this)">Terror</button>
   <button onclick="category('Comédia',this)">Comédia</button>
   <button onclick="category('Drama',this)">Drama</button>
-  <button onclick="category('Série',this)">Série</button>
+  <button onclick="category('Série',this)">Séries</button>
  </div>
 </section>
 
 <section>
- <h2>🔥 Em destaque</h2>
+ <h2 class="section-title">🔥 Em destaque</h2>
  <p id="catalogStatus" class="status">Carregando catálogo...</p>
- <div class="movies" id="movies"></div>
+ <div class="movies" id="featuredMovies"></div>
 </section>
+
+<section id="latestSection">
+ <h2 class="section-title">✨ Adicionados recentemente</h2>
+ <div class="movies" id="latestMovies"></div>
+</section>
+
+<div id="categorySections"></div>
 
 <section class="favorite-section" id="favoriteSection">
- <h2>❤️ Minha lista</h2>
+ <h2 class="section-title">❤️ Minha lista</h2>
  <div class="movies" id="favoriteMovies"></div>
- <p class="empty-favorites" id="emptyFavorites">Seus favoritos aparecerão aqui.</p>
+ <p class="empty" id="emptyFavorites">Seus favoritos aparecerão aqui.</p>
 </section>
 
-<footer>NEXFLIX © 2026</footer>
+</main>
 
+<footer>NEXFLIX © 2026 • Seu entretenimento em um só lugar</footer>
+
+<!-- DETALHES -->
 <div id="detail">
  <div class="detail-banner" id="detailBanner">
-  <small style="color:#ff5555">NEXFLIX</small>
+  <small>NEXFLIX ORIGINAL</small>
   <h1 id="movieTitle">Filme</h1>
   <div class="info" id="movieInfo"></div>
  </div>
@@ -120,25 +212,28 @@ footer{text-align:center;color:#777;padding:25px;font-size:12px}
   <p class="description" id="movieDescription"></p>
   <div class="actions">
    <button class="watch" onclick="playMovie()">▶ Assistir</button>
-   <button class="favorite-btn" id="favoriteButton" onclick="toggleFavorite()">♡ Favoritar</button>
+   <button class="favorite-btn" id="favoriteButton" onclick="toggleFavorite()">♡ Minha lista</button>
    <button class="back" onclick="closeMovie()">← Voltar</button>
   </div>
  </div>
 </div>
 
+<!-- PLAYER -->
 <div id="playerPage">
  <div class="player-top">
-  <h3>NEXFLIX</h3>
+  <h3 class="logo">NEXFLIX</h3>
   <button class="back" onclick="closePlayer()">✕ Fechar</button>
  </div>
  <h2 id="playerTitle">Reprodução</h2>
  <video id="videoPlayer" controls playsinline>
-  <source id="videoSource" src="" type="video/mp4">
   Seu navegador não suporta vídeo.
  </video>
- <p class="player-message">Utilize somente vídeos próprios, licenciados ou autorizados.</p>
+ <p class="player-message">
+  Utilize somente vídeos próprios, licenciados ou autorizados.
+ </p>
 </div>
 
+<!-- ADMIN -->
 <div id="adminPage">
  <div class="admin-top">
   <h2>⚙ Painel ADMIN</h2>
@@ -163,8 +258,10 @@ footer{text-align:center;color:#777;padding:25px;font-size:12px}
 
   <div class="admin-card">
    <h3>➕ Cadastrar filme ou série</h3>
+
    <label>Nome do conteúdo</label>
    <input id="newTitle" placeholder="Ex: Minha Aventura">
+
    <label>Categoria</label>
    <select id="newCategory">
     <option value="Ação">Ação</option>
@@ -173,12 +270,16 @@ footer{text-align:center;color:#777;padding:25px;font-size:12px}
     <option value="Drama">Drama</option>
     <option value="Série">Série</option>
    </select>
+
    <label>Descrição</label>
    <textarea id="newDescription" placeholder="Escreva sobre o conteúdo..."></textarea>
+
    <label>Link da imagem da capa</label>
    <input id="newImage" type="url" placeholder="https://site.com/capa.jpg">
+
    <label>Link do vídeo MP4</label>
    <input id="newVideo" type="url" placeholder="https://site.com/video.mp4">
+
    <button class="save-btn" onclick="addMovie()">💾 Cadastrar conteúdo</button>
   </div>
 
@@ -231,61 +332,62 @@ const defaultFilms = [
   id:"filme1",
   title:"Missão Final",
   category:"Ação",
-  info:"Ação • Filme de demonstração",
+  info:"Ação • Demonstração",
   description:"Uma missão inesperada muda tudo. Uma aventura fictícia cheia de desafios e suspense.",
-  image:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=400",
+  image:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=600",
   video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
  },
  {
   id:"filme2",
   title:"A Sombra",
   category:"Terror",
-  info:"Terror • Filme de demonstração",
+  info:"Terror • Demonstração",
   description:"Mistérios começam a aparecer quando a noite chega.",
-  image:"https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=400",
+  image:"https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=600",
   video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
  },
  {
   id:"filme3",
   title:"Destino",
   category:"Drama",
-  info:"Drama • Filme de demonstração",
+  info:"Drama • Demonstração",
   description:"Uma história sobre escolhas, sonhos e novos caminhos.",
-  image:"https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400",
+  image:"https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600",
   video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
  },
  {
   id:"filme4",
   title:"Boas Risadas",
   category:"Comédia",
-  info:"Comédia • Filme de demonstração",
+  info:"Comédia • Demonstração",
   description:"Uma sequência de situações divertidas.",
-  image:"https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400",
+  image:"https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600",
   video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
  },
  {
   id:"filme5",
   title:"O Guerreiro",
   category:"Ação",
-  info:"Ação • Filme de demonstração",
+  info:"Ação • Demonstração",
   description:"Um guerreiro enfrenta desafios em uma aventura.",
-  image:"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400",
+  image:"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600",
   video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
  }
 ];
 
 let films = [...defaultFilms];
+let cloudFilms = [];
 let favorites = loadFavorites();
 let currentFilm = null;
 let currentCategory = "Todos";
 let currentUserIsAdmin = false;
-let cloudFilms = [];
+let featuredFilm = defaultFilms[0];
 
 function loadFavorites(){
- try {
+ try{
   const data = JSON.parse(localStorage.getItem("nexflixFavorites"));
   return Array.isArray(data) ? data : [];
- } catch(e) {
+ }catch(e){
   return [];
  }
 }
@@ -294,78 +396,159 @@ function saveFavorites(){
  localStorage.setItem("nexflixFavorites",JSON.stringify(favorites));
 }
 
-function safeText(value){
- return String(value || "");
-}
-
 function validUrl(value){
- try {
+ try{
   const url = new URL(value);
   return url.protocol === "https:" || url.protocol === "http:";
- } catch(e) {
+ }catch(e){
   return false;
  }
-
 }
 
-function renderMovies(){
- const container = document.getElementById("movies");
+function makeMovieCard(film){
+ const card = document.createElement("div");
+ card.className = "movie";
+
+ const poster = document.createElement("div");
+ poster.className = "poster";
+
+ const img = document.createElement("img");
+ img.src = validUrl(film.image) ? film.image : "";
+ img.alt = film.title;
+ img.loading = "lazy";
+ img.onerror = () => {
+  img.style.display = "none";
+ };
+
+ const name = document.createElement("div");
+ name.className = "poster-name";
+ name.textContent = film.title;
+
+ poster.append(img,name);
+
+ const title = document.createElement("p");
+ title.textContent = film.title;
+
+ card.append(poster,title);
+ card.onclick = () => window.openMovie(film.id);
+
+ return card;
+}
+
+function makeRow(container,items){
  container.innerHTML = "";
-
- films.forEach(film => {
-  const card = document.createElement("div");
-  card.className = "movie";
-  card.dataset.category = film.category;
-
-  const poster = document.createElement("div");
-  poster.className = "poster";
-
-  if(validUrl(film.image)){
-   poster.style.backgroundImage =
-    "linear-gradient(0deg,#000d,transparent),url(" +
-    JSON.stringify(film.image) + ")";
-  }
-
-  poster.textContent = film.title;
-
-  const name = document.createElement("p");
-  name.textContent = film.title;
-
-  card.append(poster,name);
-  card.onclick = () => openMovie(film.id);
-
-  container.appendChild(card);
+ items.forEach(film => {
+  container.appendChild(makeMovieCard(film));
  });
-
- applyFilters();
- renderFavorites();
 }
 
-function applyFilters(){
- const query = document.getElementById("search").value.toLowerCase();
+function renderHero(){
+ if(!films.length) return;
 
- document.querySelectorAll("#movies .movie").forEach(card => {
-  const matchesText = card.innerText.toLowerCase().includes(query);
+ featuredFilm = cloudFilms.length
+  ? [...cloudFilms].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0]
+  : defaultFilms[0];
+
+ const hero = document.getElementById("hero");
+
+ hero.style.backgroundImage = validUrl(featuredFilm.image)
+  ? "url(" + JSON.stringify(featuredFilm.image) + ")"
+  : "linear-gradient(120deg,#570000,#171717)";
+
+ document.getElementById("heroTitle").textContent = featuredFilm.title;
+ document.getElementById("heroDescription").textContent =
+  featuredFilm.description || "Uma grande história espera por você.";
+}
+
+window.openFeatured = function(){
+ if(featuredFilm) window.openMovie(featuredFilm.id);
+};
+
+function renderCatalog(){
+ const query = document.getElementById("search").value.trim().toLowerCase();
+
+ let visible = films.filter(film => {
+  const matchesText =
+   (film.title || "").toLowerCase().includes(query) ||
+   (film.description || "").toLowerCase().includes(query) ||
+   (film.category || "").toLowerCase().includes(query);
+
   const matchesCategory =
    currentCategory === "Todos" ||
-   card.dataset.category === currentCategory;
+   film.category === currentCategory;
 
-  card.style.display =
-   matchesText && matchesCategory ? "block" : "none";
+  return matchesText && matchesCategory;
  });
+
+ const featured = document.getElementById("featuredMovies");
+ makeRow(featured,visible);
+
+ const latestSection = document.getElementById("latestSection");
+ const latest = [...cloudFilms].sort(
+  (a,b)=>(b.createdAt||0)-(a.createdAt||0)
+ ).filter(film =>
+  currentCategory === "Todos" || film.category === currentCategory
+ ).filter(film =>
+  !query ||
+  (film.title || "").toLowerCase().includes(query) ||
+  (film.description || "").toLowerCase().includes(query)
+ );
+
+ makeRow(document.getElementById("latestMovies"),latest);
+ latestSection.style.display = latest.length ? "block" : "none";
+
+ const groups = ["Ação","Terror","Comédia","Drama","Série"];
+ const groupContainer = document.getElementById("categorySections");
+ groupContainer.innerHTML = "";
+
+ groups.forEach(cat => {
+  if(currentCategory !== "Todos" && currentCategory !== cat) return;
+
+  const items = visible.filter(film => film.category === cat);
+  if(!items.length) return;
+
+  const section = document.createElement("section");
+
+  const heading = document.createElement("h2");
+  heading.className = "section-title";
+  heading.textContent = cat === "Série" ? "📺 Séries" : "🎬 " + cat;
+
+  const row = document.createElement("div");
+  row.className = "movies";
+  makeRow(row,items);
+
+  section.append(heading,row);
+  groupContainer.appendChild(section);
+ });
+
+ renderFavorites();
+
+ document.getElementById("catalogStatus").textContent =
+  visible.length + (visible.length === 1
+   ? " conteúdo encontrado."
+   : " conteúdos encontrados.");
+
+ if(!visible.length){
+  const empty = document.createElement("p");
+  empty.className = "empty";
+  empty.textContent = query
+   ? "Nenhum conteúdo encontrado para sua pesquisa."
+   : "Nenhum conteúdo nesta categoria.";
+  featured.appendChild(empty);
+ }
 }
 
-window.filterMovies = applyFilters;
+window.filterMovies = renderCatalog;
 
 window.category = function(cat,button){
  currentCategory = cat;
 
- document.querySelectorAll(".categories button").forEach(b => {
+ document.querySelectorAll(".categories button").forEach(b=>{
   b.classList.remove("active");
  });
 
  button.classList.add("active");
- applyFilters();
+ renderCatalog();
 };
 
 window.openMovie = function(id){
@@ -374,16 +557,17 @@ window.openMovie = function(id){
 
  document.getElementById("movieTitle").textContent = currentFilm.title;
  document.getElementById("movieInfo").textContent =
-  currentFilm.info || currentFilm.category;
+  currentFilm.info || currentFilm.category || "";
+
  document.getElementById("movieDescription").textContent =
-  currentFilm.description;
+  currentFilm.description || "Descrição não disponível.";
 
  const banner = document.getElementById("detailBanner");
 
  banner.style.backgroundImage = validUrl(currentFilm.image)
-  ? "linear-gradient(0deg,#090909,#30000088),url(" +
+  ? "linear-gradient(0deg,#080808,#08080833),url(" +
     JSON.stringify(currentFilm.image) + ")"
-  : "linear-gradient(0deg,#090909,#30000088)";
+  : "linear-gradient(0deg,#080808,#300000)";
 
  document.getElementById("detail").style.display = "block";
  updateFavoriteButton();
@@ -394,13 +578,15 @@ window.closeMovie = function(){
 };
 
 window.playMovie = function(){
- if(!currentFilm) return;
+ if(!currentFilm || !validUrl(currentFilm.video)){
+  alert("O link deste vídeo não está disponível.");
+  return;
+ }
 
  document.getElementById("playerTitle").textContent = currentFilm.title;
 
  const player = document.getElementById("videoPlayer");
- document.getElementById("videoSource").src = currentFilm.video || "";
-
+ player.src = currentFilm.video;
  player.load();
 
  document.getElementById("detail").style.display = "none";
@@ -411,8 +597,8 @@ window.closePlayer = function(){
  const player = document.getElementById("videoPlayer");
  player.pause();
  player.removeAttribute("src");
- document.getElementById("videoSource").src = "";
  player.load();
+
  document.getElementById("playerPage").style.display = "none";
 };
 
@@ -421,7 +607,7 @@ window.toggleFavorite = function(){
 
  if(favorites.includes(currentFilm.id)){
   favorites = favorites.filter(id => id !== currentFilm.id);
- } else {
+ }else{
   favorites.push(currentFilm.id);
  }
 
@@ -436,7 +622,7 @@ function updateFavoriteButton(){
  const saved = favorites.includes(currentFilm.id);
  const btn = document.getElementById("favoriteButton");
 
- btn.textContent = saved ? "♥ Favoritado" : "♡ Favoritar";
+ btn.textContent = saved ? "♥ Na minha lista" : "♡ Minha lista";
  btn.classList.toggle("saved",saved);
 }
 
@@ -447,44 +633,22 @@ function renderFavorites(){
 
  container.innerHTML = "";
 
- favorites.forEach(id => {
-  const film = films.find(f => f.id === id);
-  if(!film) return;
-
-  const card = document.createElement("div");
-  card.className = "movie";
-
-  const poster = document.createElement("div");
-  poster.className = "poster";
-
-  if(validUrl(film.image)){
-   poster.style.backgroundImage =
-    "linear-gradient(0deg,#000d,transparent),url(" +
-    JSON.stringify(film.image) + ")";
-  }
-
-  poster.textContent = film.title;
-
-  const name = document.createElement("p");
-  name.textContent = film.title;
-
-  card.append(poster,name);
-  card.onclick = () => window.openMovie(film.id);
-
-  container.appendChild(card);
+ favorites.forEach(id=>{
+  const film = films.find(f=>f.id===id);
+  if(film) container.appendChild(makeMovieCard(film));
  });
 
- section.classList.toggle("show",container.children.length > 0);
+ section.classList.toggle("show",container.children.length>0);
  empty.style.display = container.children.length ? "none" : "block";
 }
 
-// FIREBASE: CATÁLOGO
+// FIREBASE: CARREGAR CATÁLOGO PÚBLICO
 
 async function loadCloudFilms(){
- try {
+ try{
   const snapshot = await getDocs(collection(db,"filmes"));
 
-  cloudFilms = snapshot.docs.map(item => ({
+  cloudFilms = snapshot.docs.map(item=>({
    ...item.data(),
    id:item.id,
    cloud:true
@@ -495,15 +659,18 @@ async function loadCloudFilms(){
   document.getElementById("catalogStatus").textContent =
    "Catálogo atualizado!";
 
-  renderMovies();
+  renderHero();
+  renderCatalog();
 
   if(currentUserIsAdmin) renderAdminList();
 
- } catch(error) {
+ }catch(error){
   console.error(error);
 
   document.getElementById("catalogStatus").textContent =
-   "Não foi possível carregar os filmes online. Verifique a conexão e as regras do Firestore.";
+   "Não foi possível atualizar o catálogo online. Exibindo demonstrações.";
+
+  renderCatalog();
  }
 }
 
@@ -521,7 +688,7 @@ window.firebaseLogin = async function(){
 
  message.textContent = "Verificando acesso...";
 
- try {
+ try{
   const result = await signInWithEmailAndPassword(auth,email,password);
 
   if(result.user.uid !== ADMIN_UID){
@@ -530,23 +697,23 @@ window.firebaseLogin = async function(){
    return;
   }
 
-  message.textContent = "Login realizado!";
+  message.textContent = "Login realizado com sucesso!";
 
- } catch(error) {
+ }catch(error){
   console.error(error);
   message.textContent = "Falha no login. Confira o e-mail e a senha.";
  }
 };
 
 window.firebaseLogout = async function(){
- try {
+ try{
   await signOut(auth);
- } catch(error) {
+ }catch(error){
   alert("Não foi possível sair: " + error.message);
  }
 };
 
-onAuthStateChanged(auth,async user => {
+onAuthStateChanged(auth,user=>{
  currentUserIsAdmin = !!(user && user.uid === ADMIN_UID);
 
  document.getElementById("adminLogin").style.display =
@@ -558,10 +725,7 @@ onAuthStateChanged(auth,async user => {
  document.getElementById("adminStatus").textContent =
   currentUserIsAdmin ? "Administrador conectado!" : "";
 
- if(currentUserIsAdmin){
-  await loadCloudFilms();
-  renderAdminList();
- }
+ if(currentUserIsAdmin) renderAdminList();
 });
 
 // FIREBASE: CADASTRAR
@@ -589,7 +753,7 @@ window.addMovie = async function(){
   return;
  }
 
- try {
+ try{
   const newFilm = {
    title,
    category,
@@ -605,7 +769,8 @@ window.addMovie = async function(){
   cloudFilms.push({...newFilm,id:result.id,cloud:true});
   films = [...defaultFilms,...cloudFilms];
 
-  renderMovies();
+  renderHero();
+  renderCatalog();
   renderAdminList();
 
   document.getElementById("newTitle").value = "";
@@ -613,9 +778,9 @@ window.addMovie = async function(){
   document.getElementById("newImage").value = "";
   document.getElementById("newVideo").value = "";
 
-  alert("Filme cadastrado na nuvem com sucesso!");
+  alert("Conteúdo cadastrado na nuvem com sucesso!");
 
- } catch(error) {
+ }catch(error){
   console.error(error);
   alert("Erro ao cadastrar: " + error.message);
  }
@@ -630,25 +795,26 @@ window.deleteMovie = async function(id){
   return;
  }
 
- const film = cloudFilms.find(f => f.id === id);
+ const film = cloudFilms.find(f=>f.id===id);
  if(!film) return;
 
  if(!confirm("Deseja excluir " + film.title + "?")) return;
 
- try {
+ try{
   await deleteDoc(doc(db,"filmes",id));
 
-  cloudFilms = cloudFilms.filter(f => f.id !== id);
+  cloudFilms = cloudFilms.filter(f=>f.id!==id);
   films = [...defaultFilms,...cloudFilms];
-  favorites = favorites.filter(fav => fav !== id);
+  favorites = favorites.filter(fav=>fav!==id);
 
   saveFavorites();
-  renderMovies();
+  renderHero();
+  renderCatalog();
   renderAdminList();
 
   alert("Conteúdo excluído da nuvem.");
 
- } catch(error) {
+ }catch(error){
   console.error(error);
   alert("Erro ao excluir: " + error.message);
  }
@@ -658,12 +824,12 @@ function renderAdminList(){
  const container = document.getElementById("adminList");
  container.innerHTML = "";
 
- if(cloudFilms.length === 0){
+ if(cloudFilms.length===0){
   container.textContent = "Nenhum conteúdo cadastrado na nuvem.";
   return;
  }
 
- cloudFilms.forEach(film => {
+ cloudFilms.forEach(film=>{
   const item = document.createElement("div");
   item.className = "admin-item";
 
@@ -673,7 +839,7 @@ function renderAdminList(){
   const del = document.createElement("button");
   del.className = "delete-btn";
   del.textContent = "Excluir";
-  del.onclick = () => window.deleteMovie(film.id);
+  del.onclick = ()=>window.deleteMovie(film.id);
 
   item.append(name,del);
   container.appendChild(item);
@@ -688,7 +854,9 @@ window.closeAdmin = function(){
  document.getElementById("adminPage").style.display = "none";
 };
 
-renderMovies();
+// INICIALIZAÇÃO
+renderHero();
+renderCatalog();
 loadCloudFilms();
 
 </script>
